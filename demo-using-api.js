@@ -1,38 +1,35 @@
 // load the mysql library
-var mysql = require('mysql');
+var mysql = require('promise-mysql');
+var rpass = require('./temp/rootpass.js')
+var reddit = require('./reddit');
 
 // create a connection to our Cloud9 server
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'ziad_saab', // CHANGE THIS :)
-  password : '',
-  database: 'reddit'
+var redditdb = mysql.createPool({
+  host: 'localhost',
+  port: 8889,
+  user: 'root',
+  password: rpass,
+  database: 'reddit_api',
+  connectionLimit: 10
 });
+//passing my DB to my reddit api function
+var redditAPI = reddit(redditdb);
 
-// load our API and pass it the connection
-var reddit = require('./reddit');
-var redditAPI = reddit(connection);
-
-// It's request time!
+// requests...now with promises!!!
 redditAPI.createUser({
-  username: 'hello23',
-  password: 'xxx'
-}, function(err, user) {
-  if (err) {
-    console.log(err);
-  }
-  else {
-    redditAPI.createPost({
-      title: 'hi reddit!',
-      url: 'https://www.reddit.com',
-      userId: user.id
-    }, function(err, post) {
-      if (err) {
-        console.log(err);
-      }
-      else {
-        console.log(post);
-      }
-    });
-  }
-});
+  username: 'mumfordsAndSonswitacreamcheezz',
+  password: 'wasup12123'
+})
+.then(function(res){
+  return redditAPI.createPost({
+    title: 'hi reddit!',
+    url: 'https://www.reddit.com',
+    userId: res.id
+  })
+})
+.then(function(res){
+  console.log(res)
+})
+.catch(function(err){
+  console.log(err,'error fiddy five / ERROR 55')
+})

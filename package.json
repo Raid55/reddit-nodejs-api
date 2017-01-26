@@ -7,10 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Ziad Saab <ziad.saab@gmail.com>",
+  "author": "Ziad Saab <ziad.saab@gmail.com>, AND RAID55",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^0.8.6",
-    "mysql": "^2.10.2"
+    "bcrypt": "^1.0.2",
+    "promise-mysql": "^3.0.0"
   }
 }
