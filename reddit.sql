@@ -23,3 +23,14 @@ CREATE TABLE `posts` (
   KEY `userId` (`userId`), -- why did we add this here? ask me :)
   CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE SET NULL
 );
+
+CREATE TABLE `reddit_api`.`subreddits` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT ,
+  `name` VARCHAR(30) NOT NULL ,
+  `description` VARCHAR(200) NOT NULL ,
+  `createdAt` DATETIME NOT NULL ,
+  `updatedAt` DATETIME NOT NULL ,
+  PRIMARY KEY (`id`), UNIQUE (`name`))
+  ENGINE = InnoDB;
+
+ALTER TABLE `posts` ADD `subredditId` INT(11) NOT NULL AFTER `id`;
