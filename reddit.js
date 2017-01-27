@@ -37,35 +37,48 @@ module.exports = function RedditAPI(conn) {
       if (!options) {
         options = {};
       }
+      var sort = options.sortingMethod || 'new';
       var limit = options.numPerPage || 25;
       var offset = (options.page || 0) * limit;
+      if(sort === 'top'){
+        sort = 'score';
+      }else{
+        sort = 'posts.createdAt';
+      }
       return conn.query(`
-        SELECT posts.id as pId, title, url, userId, posts.createdAt as createdAtP, posts.updatedAt as updatedAtP,
+        SELECT posts.id as pId, title, url, posts.createdAt as createdAtP, posts.updatedAt as updatedAtP,
         users.id as uId, username, users.createdAt as createdAtU, users.updatedAt as updatedAtU, subreddits.id as idS,
-        name, description, subreddits.createdAt as createdAtS
-        FROM posts LEFT JOIN users ON posts.userId = users.id JOIN subreddits ON posts.subredditId = subreddits.id
-        ORDER BY posts.createdAt DESC
-        LIMIT ? OFFSET ?`, [limit, offset])
+        name, description, subreddits.createdAt as createdAtS,
+        COALESCE(SUM(votes.vote),0) as score
+        FROM posts
+        LEFT JOIN users ON posts.userId = users.id
+        LEFT JOIN subreddits ON posts.subredditId = subreddits.id
+        LEFT JOIN votes ON votes.postId = posts.id
+        GROUP BY pId
+        ORDER BY ? DESC
+        LIMIT ? OFFSET ?`, [sort, limit, offset])
       .then(function(res){
+
         return res.reduce(function(accu,el,indx){
           accu.push({
             id: el.pId,
             title: el.title,
             url: el.url,
+            score: el.score,
             subreddit: {
               id: el.idS,
               name: el.name,
               description: el.description,
               createdAt: el.createdAtS
             },
-            createdAt: el.createdAtP,
-            updatedAt: el.updatedAtP,
             user:{
               id: el.uId,
               username: el.username,
               createdAt: el.createdAtU,
               updatedAt: el.createdAtU
-            }
+            },
+            createdAt: el.createdAtP,
+            updatedAt: el.updatedAtP
           })
           return accu
         },[])
@@ -80,7 +93,8 @@ module.exports = function RedditAPI(conn) {
       return conn.query(`
         SELECT posts.id as pId, title, url, userId, posts.createdAt as createdAtP, posts.updatedAt as updatedAtP,
         users.id as uId, username, users.createdAt as createdAtU, users.updatedAt as updatedAtU
-        FROM posts LEFT JOIN users ON posts.userId = users.id
+        FROM posts
+        LEFT JOIN users ON posts.userId = users.id
         WHERE posts.userId = ?
         ORDER BY posts.createdAt DESC
         LIMIT ? OFFSET ?`, [userId,limit, offset])
@@ -155,6 +169,10 @@ module.exports = function RedditAPI(conn) {
           return accu
         },[])
       })
+    },
+    createVoteorUpdate: function(voteObj){
+      return conn.query(`INSERT INTO votes SET postId=?, userId=?, createdAt=?, vote=? ON DUPLICATE KEY UPDATE vote=?,
+        updatedAt=?`, [voteObj.postId,voteObj.userId,new Date(),voteObj.vote,voteObj.vote,new Date()])
     }
   }
 }

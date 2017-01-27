@@ -34,3 +34,12 @@ CREATE TABLE `reddit_api`.`subreddits` (
   ENGINE = InnoDB;
 
 ALTER TABLE `posts` ADD `subredditId` INT(11) NOT NULL AFTER `id`;
+
+CREATE TABLE `reddit_api`.`votes`(
+  `userId` INT(11) NOT NULL,
+  `postId` INT(11) NOT NULL,
+  `vote` TINYINT NOT NULL,
+  `createdOn` DATETIME,
+  `modifiedOn` DATETIME,
+  PRIMARY KEY (`userId`,`postId`)
+);

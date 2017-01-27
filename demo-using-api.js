@@ -36,13 +36,15 @@ var redditAPI = reddit(redditdb);
 // })
 
 // redditAPI.createPost({
-//   title: 'CSGO PRO SCENE CALLED A JOKE BY MORGAN FREEMAN',
-//   url: 'https://MorganFreeman.org.co.uk',
-//   userId: 1,
+//   title: 'EVERY WHITE CIS MALE RACSISTS MEGOSINISTICS!!!!',
+//   url: 'https://gawker.net',
+//   userId: 3,
 //   subId: 1
 // })
 
-redditAPI.getAllPosts()
+redditAPI.getAllPosts({
+  sortingMethod: 'top'
+})
 .then(function(res){
   console.log(res);
 })
@@ -74,4 +76,10 @@ redditAPI.getAllPosts()
 // })
 // .catch(function(err){
 //   console.log(err);
+// })
+
+// redditAPI.createVoteorUpdate({
+//   postId: 10,
+//   userId: 6,
+//   vote: 1
 // })
