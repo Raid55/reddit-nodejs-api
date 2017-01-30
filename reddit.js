@@ -58,7 +58,6 @@ module.exports = function RedditAPI(conn) {
         ORDER BY ? DESC
         LIMIT ? OFFSET ?`, [sort, limit, offset])
       .then(function(res){
-
         return res.reduce(function(accu,el,indx){
           accu.push({
             id: el.pId,
@@ -173,9 +172,74 @@ module.exports = function RedditAPI(conn) {
     createVoteorUpdate: function(voteObj){
       return conn.query(`INSERT INTO votes SET postId=?, userId=?, createdAt=?, vote=? ON DUPLICATE KEY UPDATE vote=?,
         updatedAt=?`, [voteObj.postId,voteObj.userId,new Date(),voteObj.vote,voteObj.vote,new Date()])
+    },
+    createComment: function(commentObj){
+      if (!commentObj.parentId){
+        return conn.query('INSERT INTO comments (text, userId, postId, createdAt) VALUES (?, ?, ?, ?)',
+        [commentObj.text, commentObj.userId, commentObj.postId, new Date()])
+        .then(function(res){
+          return conn.query('SELECT text, userId, postId, createdAt FROM comments WHERE id = ?', [res.insertId])
+        })
+        .catch(function(err){
+          throw err
+        })
+      }else{
+        return conn.query('INSERT INTO comments (parentId, text, userId, postId, createdAt) VALUES (?, ?, ?, ?, ?)',
+        [commentObj.parentId, commentObj.text, commentObj.userId, commentObj.postId, new Date()])
+        .then(function(res){
+          return conn.query('SELECT parentId, text, userId, postId, createdAt FROM comments WHERE id = ?', [res.insertId])
+        })
+        .catch(function(err){
+          throw err
+        })
+      }
+    },
+    getCommentsForPosts: function(postId){
+      return conn.query('SELECT * FROM comments WHERE postId = ? AND parentId IS NULL ORDER BY createdAt DESC', [postId])
+      .then(function(res){
+        return res.reduce(function(accu,el,indx){
+          if(el.parentId === null){
+            var mainComment = {
+              id: el.id,
+              text: el.text,
+              replies: []
+            }
+            res.forEach(function(ele){
+              if(ele.parentId === el.id){
+                var repComment = {
+                  id: ele.id,
+                  text: ele.text,
+                  replies: []
+                }
+                accu[el.id] = mainComment;
+                accu[el.id].replies.push(repComment);
+
+                res.forEach(function(elem){
+                  if(elem.parentId === ele.id){
+                    var rerepComment = {
+                      id: elem.id,
+                      text: elem.text,
+                      replies:[]
+                    }
+                    accu[el.id].replies.forEach(function(inner){
+                      if(inner.id === elem.parentId){
+                        inner.replies.push(rerepComment)
+                      }
+                    })
+                  }
+                })
+              }else{
+                accu[el.id] = mainComment;
+              }
+            })
+          }
+          return accu
+        },{})
+      })
     }
   }
 }
+
 
 // resolve(res.reduce(function(accu,el,idx){
 //   return conn.query(`

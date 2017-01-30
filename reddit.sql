@@ -43,3 +43,15 @@ CREATE TABLE `reddit_api`.`votes`(
   `modifiedOn` DATETIME,
   PRIMARY KEY (`userId`,`postId`)
 );
+
+--create comment table
+CREATE TABLE `reddit_api`.`comments` (
+`id` INT NOT NULL AUTO_INCREMENT ,
+`parentId` INT NULL ,
+`text` VARCHAR(10000) NOT NULL ,
+`userId` INT NOT NULL ,
+`postId` INT NOT NULL ,
+`createdAt` DATETIME NOT NULL ,
+`updatedAt` DATETIME NOT NULL ,
+PRIMARY KEY (`id`))
+ENGINE = InnoDB;

@@ -42,15 +42,33 @@ var redditAPI = reddit(redditdb);
 //   subId: 1
 // })
 
-redditAPI.getAllPosts({
-  sortingMethod: 'top'
-})
-.then(function(res){
-  console.log(res);
-})
-.catch(function(err){
-  console.log(err);
-})
+// redditAPI.getAllPosts({
+//   sortingMethod: 'top'
+// })
+// .then(function(res){
+//   console.log(res);
+// })
+// .catch(function(err){
+//   console.log(err);
+// })
+
+// redditAPI.createComment({
+//   text:'cringy kid,lolol',
+//   postId: 13,
+//   userId: 7,
+//   parentId: 3
+// })
+// .then(function(res){
+//   console.log(res);
+// })
+// .catch(function(err){
+//   console.log(err);
+// })
+
+redditAPI.getCommentsForPosts(13)
+.then(console.log)
+.catch(console.log)
+
 
 // redditAPI.getAllPostsForUser(1)
 // .then(function(res){
