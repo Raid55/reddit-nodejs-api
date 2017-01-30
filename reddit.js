@@ -194,49 +194,52 @@ module.exports = function RedditAPI(conn) {
         })
       }
     },
-    getCommentsForPosts: function(postId){
-      return conn.query('SELECT * FROM comments WHERE postId = ? AND parentId IS NULL ORDER BY createdAt DESC', [postId])
-      .then(function(res){
-        return res.reduce(function(accu,el,indx){
-          if(el.parentId === null){
-            var mainComment = {
-              id: el.id,
-              text: el.text,
-              replies: []
-            }
-            res.forEach(function(ele){
-              if(ele.parentId === el.id){
-                var repComment = {
-                  id: ele.id,
-                  text: ele.text,
-                  replies: []
-                }
-                accu[el.id] = mainComment;
-                accu[el.id].replies.push(repComment);
-
-                res.forEach(function(elem){
-                  if(elem.parentId === ele.id){
-                    var rerepComment = {
-                      id: elem.id,
-                      text: elem.text,
-                      replies:[]
-                    }
-                    accu[el.id].replies.forEach(function(inner){
-                      if(inner.id === elem.parentId){
-                        inner.replies.push(rerepComment)
-                      }
-                    })
-                  }
-                })
-              }else{
-                accu[el.id] = mainComment;
-              }
-            })
-          }
-          return accu
-        },{})
-      })
-    }
+    // getCommentsForPosts: function(postId){
+    //   return conn.query(`SELECT * FROM comments
+    //     WHERE postId = ?
+    //     AND parentId IS NULL
+    //     ORDER BY createdAt DESC`, [postId])
+    //   .then(function(res){
+    //     return res.reduce(function(accu,el,indx){
+    //       if(el.parentId === null){
+    //         var mainComment = {
+    //           id: el.id,
+    //           text: el.text,
+    //           replies: []
+    //         }
+    //         res.forEach(function(ele){
+    //           if(ele.parentId === el.id){
+    //             var repComment = {
+    //               id: ele.id,
+    //               text: ele.text,
+    //               replies: []
+    //             }
+    //             accu[el.id] = mainComment;
+    //             accu[el.id].replies.push(repComment);
+    //
+    //             res.forEach(function(elem){
+    //               if(elem.parentId === ele.id){
+    //                 var rerepComment = {
+    //                   id: elem.id,
+    //                   text: elem.text,
+    //                   replies:[]
+    //                 }
+    //                 accu[el.id].replies.forEach(function(inner){
+    //                   if(inner.id === elem.parentId){
+    //                     inner.replies.push(rerepComment)
+    //                   }
+    //                 })
+    //               }
+    //             })
+    //           }else{
+    //             accu[el.id] = mainComment;
+    //           }
+    //         })
+    //       }
+    //       return accu
+    //     },{})
+    //   })
+    // }
   }
 }
 

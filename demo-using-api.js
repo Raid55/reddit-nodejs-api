@@ -36,15 +36,28 @@ var redditAPI = reddit(redditdb);
 // })
 
 // redditAPI.createPost({
-//   title: 'EVERY WHITE CIS MALE RACSISTS MEGOSINISTICS!!!!',
-//   url: 'https://gawker.net',
+//   title: 'GTA7 PRE-CONFIRMEND!!11?!!',
+//   url: 'https://gamesgamesgamesandpizza.net',
+//   userId: 8,
+//   subId: 1
+// });
+//
+// redditAPI.createPost({
+//   title: 'alt LEFT?!?!?',
+//   url: 'https://inforwars.net',
 //   userId: 3,
 //   subId: 1
-// })
-
-// redditAPI.getAllPosts({
-//   sortingMethod: 'top'
-// })
+// });
+// redditAPI.createPost({
+//   title: 'ABSOLUTE HITLER',
+//   url: 'https://CONSPIRASISES.org',
+//   userId: 4,
+//   subId: 1
+// });
+redditAPI.getAllPosts({
+  sortingMethod: 'top'
+})
+.then(console.log)
 // .then(function(res){
 //   console.log(res);
 // })
@@ -65,9 +78,9 @@ var redditAPI = reddit(redditdb);
 //   console.log(err);
 // })
 
-redditAPI.getCommentsForPosts(13)
-.then(console.log)
-.catch(console.log)
+// redditAPI.getCommentsForPosts(13)
+// .then(console.log)
+// .catch(console.log)
 
 
 // redditAPI.getAllPostsForUser(1)

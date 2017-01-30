@@ -1,5 +1,20 @@
 var express = require('express');
 var app = express();
+var mysql = require('promise-mysql');
+var rpass = require('./temp/rootpass.js')
+var reddit = require('./reddit');
+
+// create a connection to our Cloud9 server
+var redditdb = mysql.createPool({
+  host: 'localhost',
+  port: 8889,
+  user: 'root',
+  password: rpass,
+  database: 'reddit_api',
+  connectionLimit: 10
+});
+//passing my DB to my reddit api function
+var redditAPI = reddit(redditdb);
 
 //exercise 1 and 2
 app.get('/hello', function (req, res) {
@@ -36,11 +51,37 @@ app.get('/calculator/:tagId', function(req, res) {
     tempObj.solution = tempObj.firstOperand * tempObj.secondOperand;
     res.send(JSON.stringify(tempObj));
   }else{
+    tempObj.solution = 'error in the operator, was not add,sub,div or mult'
     res.send(JSON.stringify(tempObj));
   }
 });
-
+//
+redditAPI.getAllPosts({
+  sortingMethod: 'top',
+  numPerPage: 5
+})
 //exercise 4
+app.get('/posts/:tagId',function(req,res){
+  redditAPI.getAllPosts({
+    sortingMethod: req.params.tagId,
+    numPerPage: +req.query.limit
+  })
+  .then(function(res1){
+    res.send(res1.reduce(function(accu,el,indx){
+      accu += `
+      <li class="content-item">
+      <h2 class="content-item__title">
+        <a href="`+el.url+`">`+el.title+`</a>
+      </h2>
+      <p>Created by `+el.user.username+`</p>
+      </li>`
+      return accu;
+    },`<div id="contents">
+<h1>List of contents</h1>
+<ul class="contents-list">`) +`</ul></div>`)
+  })
+})
+//
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
