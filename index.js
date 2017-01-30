@@ -3,6 +3,7 @@ var app = express();
 var mysql = require('promise-mysql');
 var rpass = require('./temp/rootpass.js')
 var reddit = require('./reddit');
+var bParse = require('body-parser')
 
 // create a connection to our Cloud9 server
 var redditdb = mysql.createPool({
@@ -15,9 +16,15 @@ var redditdb = mysql.createPool({
 });
 //passing my DB to my reddit api function
 var redditAPI = reddit(redditdb);
-
+//app.uses////////////////
+app.use(bParse.json());
+app.use(bParse.urlencoded({
+  extended: true
+}));
+//////////////////////////
 //exercise 1 and 2
 app.get('/hello', function (req, res) {
+
   if (!req.query.name){
     res.send('<h1>Hello World Mr.Anonymous!</h1>');
   }else{
@@ -81,8 +88,29 @@ app.get('/posts/:tagId',function(req,res){
 <ul class="contents-list">`) +`</ul></div>`)
   })
 })
-//
-
+//ex 5
+app.get('/createContent', function(req,res){
+  res.send(`<form action="/createContent" method="POST">
+  <div>
+    <input type="text" name="url" style="font-size: 2em; margin: 35px; border: 1px dashed tomato;" placeholder="Enter a URL to content">
+  </div>
+  <div>
+    <input type="text" name="title" style="font-size: 2em; margin: 35px;border: 1px dashed tomato;" placeholder="Enter the title of your content">
+  </div>
+  <button type="submit" style="font-size: 2em; margin: 35px;border: 1px dashed tomato;">Create!</button>
+</form>`)
+})
+//ex 6
+app.post('/createContent', function(req,res){
+  redditAPI.createPost({
+    title: req.body.title,
+    url: req.body.url,
+    userId: 10,
+    subId: 1
+  })
+  .then(() => res.send('<h1>your link was submited :)</h1>'))
+  .catch(()=> res.send('<h1>ERROR, that was an error... try again later :(</h1>'))
+})
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
