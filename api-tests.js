@@ -1,7 +1,7 @@
 // load the mysql library
 var mysql = require('promise-mysql');
 var rpass = require('./temp/rootpass.js')
-var reddit = require('./reddit');
+var reddit = require('./redditSQLCalls');
 
 // create a connection to our Cloud9 server
 var redditdb = mysql.createPool({

@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var mysql = require('promise-mysql');
 var rpass = require('./temp/rootpass.js');
-var reddit = require('./reddit');
+var reddit = require('./redditSQLCalls');
 var bParse = require('body-parser');
 
 
@@ -30,7 +30,7 @@ app.get('/hello', function (req, res) {
   if (!req.query.name){
     res.send('<h1>Hello World Mr.Anonymous!</h1>');
   }else{
-    res.send('<h1>Hello World '+ req.query.name +'</h1>')
+    res.send(`<h1>Hello World ${req.query.name} </h1>`)
   }
 });
 app.get('/test', function(req, res) {
@@ -38,7 +38,7 @@ app.get('/test', function(req, res) {
 });
 //exercise 2b
 app.get('/hello/:tagId', function(req, res) {
-  res.send('<h1>Hello World '+ req.params.tagId +'</h1>');
+  res.send(`<h1>Hello World ${req.params.tagId} </h1>`);
 });
 
 //exercise 3
@@ -61,8 +61,8 @@ app.get('/calculator/:tagId', function(req, res) {
     tempObj.solution = tempObj.firstOperand * tempObj.secondOperand;
     res.send(JSON.stringify(tempObj));
   }else{
-    tempObj.solution = 'error in the operator, was not add,sub,div or mult'
-    res.send(JSON.stringify(tempObj));
+    tempObj.solution = 'There was an error'
+    res.status(400).send(tempObj)
   }
 });
 //
@@ -79,6 +79,9 @@ app.get('/posts/:tagId',function(req,res){
   .then(function(res1){
     res.render('post-list', {posts: res1});
   })
+  .catch(function(err){
+    res.status(400).send(err)
+  })
 })
 //ex 5
 app.get('/createContent', function(req,res){
@@ -92,8 +95,8 @@ app.post('/createContent', function(req,res){
     userId: 10,
     subId: 1
   })
-  .then((res1) => res.redirect('post/'+res1.id))
-  .catch(()=> res.send('<h1>ERROR, that was an error... try again later :(</h1>'))
+  .then((res1) => res.redirect(`post/${res1.id}`))
+  .catch(() =>  res.status(400).send(`<h1>ERROR, that was an error... try again later :(</h1>`))
 })
 //ex 6 challenge
 app.get('post/:id', function(req,res){
@@ -101,20 +104,25 @@ app.get('post/:id', function(req,res){
   .then(function(res1){
     res.send(`
 <div id="contents">
-  <h1><a href="`+res1.url+`">`+res1.title+`</a></h1>
-  <p>Created by `+res1.user.username+`</p>
+  <h1><a href="${res1.url}">${res1.title}</a></h1>
+  <p>Created by ${res1.user.username}</p>
 </div>`)
+  })
+  .catch(function(err){
+    res.status(400).send(`<h1>ERROR, that was an error... try again later :(</h1>`)
   })
 })
 //ex7
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
-
+app.get('/testing',function(req,res){
+  res.render('layout.pug')
+})
 // Boilerplate code to start up the web server
 var server = app.listen(5555, function () {
   var host = server.address().address;
   var port = server.address().port;
 
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log(`Example app listening at http://localhost:${port}`);
 });
 
 // res.send(res1.reduce(function(accu,el,indx){
