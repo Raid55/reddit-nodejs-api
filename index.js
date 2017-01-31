@@ -18,6 +18,7 @@ var redditdb = mysql.createPool({
 //passing my DB to my reddit api function
 var redditAPI = reddit(redditdb);
 //app.uses////////////////
+app.use('/files', express.static('static_files'))
 app.use(bParse.json());
 app.use(bParse.urlencoded({
   extended: true
@@ -39,7 +40,6 @@ app.get('/test', function(req, res) {
 app.get('/hello/:tagId', function(req, res) {
   res.send('<h1>Hello World '+ req.params.tagId +'</h1>');
 });
-//renegade functions
 
 //exercise 3
 app.get('/calculator/:tagId', function(req, res) {
