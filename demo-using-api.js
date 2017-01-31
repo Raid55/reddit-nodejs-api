@@ -35,12 +35,13 @@ var redditAPI = reddit(redditdb);
 //   console.log(err,'error fiddy five / ERROR 55')
 // })
 
-// redditAPI.createPost({
-//   title: 'GTA7 PRE-CONFIRMEND!!11?!!',
-//   url: 'https://gamesgamesgamesandpizza.net',
-//   userId: 8,
-//   subId: 1
-// });
+redditAPI.createPost({
+  title: 'cute doge again',
+  url: 'https://dogesallday.net',
+  userId: 8,
+  subId: 1
+})
+.then(console.log)
 //
 // redditAPI.createPost({
 //   title: 'alt LEFT?!?!?',
@@ -54,10 +55,10 @@ var redditAPI = reddit(redditdb);
 //   userId: 4,
 //   subId: 1
 // });
-redditAPI.getAllPosts({
-  sortingMethod: 'top'
-})
-.then(console.log)
+// redditAPI.getAllPosts({
+//   sortingMethod: 'top'
+// })
+// .then(console.log)
 // .then(function(res){
 //   console.log(res);
 // })

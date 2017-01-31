@@ -1,0 +1,10 @@
+extends layout.pug
+block content
+  div(id="contents")
+    h1 List of posts
+    ul
+      each val in posts
+        li(class="content-item")
+          h2(class="content-item__title")
+            a(href=val.url) #{val.title}
+          p Created by #{val.user.username}

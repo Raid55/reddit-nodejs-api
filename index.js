@@ -1,9 +1,10 @@
 var express = require('express');
 var app = express();
 var mysql = require('promise-mysql');
-var rpass = require('./temp/rootpass.js')
+var rpass = require('./temp/rootpass.js');
 var reddit = require('./reddit');
-var bParse = require('body-parser')
+var bParse = require('body-parser');
+
 
 // create a connection to our Cloud9 server
 var redditdb = mysql.createPool({
@@ -21,16 +22,18 @@ app.use(bParse.json());
 app.use(bParse.urlencoded({
   extended: true
 }));
+app.set('view engine', 'pug');
 //////////////////////////
 //exercise 1 and 2
 app.get('/hello', function (req, res) {
-
   if (!req.query.name){
     res.send('<h1>Hello World Mr.Anonymous!</h1>');
   }else{
     res.send('<h1>Hello World '+ req.query.name +'</h1>')
   }
-
+});
+app.get('/test', function(req, res) {
+  res.render('post-list.pug');
 });
 //exercise 2b
 app.get('/hello/:tagId', function(req, res) {
@@ -74,31 +77,12 @@ app.get('/posts/:tagId',function(req,res){
     numPerPage: +req.query.limit
   })
   .then(function(res1){
-    res.send(res1.reduce(function(accu,el,indx){
-      accu += `
-      <li class="content-item">
-      <h2 class="content-item__title">
-        <a href="`+el.url+`">`+el.title+`</a>
-      </h2>
-      <p>Created by `+el.user.username+`</p>
-      </li>`
-      return accu;
-    },`<div id="contents">
-<h1>List of contents</h1>
-<ul class="contents-list">`) +`</ul></div>`)
+    res.render('post-list', {posts: res1});
   })
 })
 //ex 5
 app.get('/createContent', function(req,res){
-  res.send(`<form action="/createContent" method="POST">
-  <div>
-    <input type="text" name="url" style="font-size: 2em; margin: 35px; border: 1px dashed tomato;" placeholder="Enter a URL to content">
-  </div>
-  <div>
-    <input type="text" name="title" style="font-size: 2em; margin: 35px;border: 1px dashed tomato;" placeholder="Enter the title of your content">
-  </div>
-  <button type="submit" style="font-size: 2em; margin: 35px;border: 1px dashed tomato;">Create!</button>
-</form>`)
+  res.render('create-content.pug');
 })
 //ex 6
 app.post('/createContent', function(req,res){
@@ -108,10 +92,21 @@ app.post('/createContent', function(req,res){
     userId: 10,
     subId: 1
   })
-  .then(() => res.send('<h1>your link was submited :)</h1>'))
+  .then((res1) => res.redirect('post/'+res1.id))
   .catch(()=> res.send('<h1>ERROR, that was an error... try again later :(</h1>'))
 })
-
+//ex 6 challenge
+app.get('post/:id', function(req,res){
+  redditAPI.getSinglePost(+req.params.id)
+  .then(function(res1){
+    res.send(`
+<div id="contents">
+  <h1><a href="`+res1.url+`">`+res1.title+`</a></h1>
+  <p>Created by `+res1.user.username+`</p>
+</div>`)
+  })
+})
+//ex7
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
 // Boilerplate code to start up the web server
@@ -121,3 +116,16 @@ var server = app.listen(5555, function () {
 
   console.log('Example app listening at http://%s:%s', host, port);
 });
+
+// res.send(res1.reduce(function(accu,el,indx){
+//   accu += `
+//   <li class="content-item">
+//   <h2 class="content-item__title">
+//     <a href="`+el.url+`">`+el.title+`</a>
+//   </h2>
+//   <p>Created by `+el.user.username+`</p>
+//   </li>`
+//   return accu;
+// },`<div id="contents">
+// <h1>List of contents</h1>
+// <ul class="contents-list">`) +`</ul></div>`)
